@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/Navbar'; // Adjust the path according to your file structure
+import Navbar from './components/Navbar'; 
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import ContactsPage from './pages/ContactsPage';
-import CalendarsPage from './pages/CalendarsPage';
+import SchedulesPage from './pages/SchedulesPage';
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/contacts" element={<ContactsPage />} />
-        <Route path="/calendars" element={<CalendarsPage />} />
+        <Route path="/schedules" element={<SchedulesPage />} />
       </Routes>
     </Router>
   );

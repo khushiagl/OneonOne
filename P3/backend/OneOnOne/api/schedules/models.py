@@ -12,6 +12,7 @@ class Schedule(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     is_finalized = models.BooleanField(default=False)
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return f"Schedule {self.id} for {self.user.username}"
