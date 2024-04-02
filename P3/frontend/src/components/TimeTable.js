@@ -134,13 +134,13 @@ const TimeTable = ({ schedule }) => {
       </table>
 
       {/* Legend */}
-      <div className="mt-2 p-2">
+      {/* <div className="mt-2 p-2">
         <h3 className="text-lg mb-2">Legend</h3>
         <LegendItem color="bg-yellow-200" text="Low Priority" />
         <LegendItem color="bg-green-200" text="Medium Priority" />
         <LegendItem color="bg-blue-200" text="High Priority" />
         <LegendItem color="border" text="Not Available" />
-      </div>
+      </div> */}
     </div>
   );
 };
