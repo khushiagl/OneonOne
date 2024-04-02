@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from .models import Schedule, Invitation, FinalizedMeeting, SuggestedSchedule, User
+from ..users.serializers import UserSerializer
 
 class ScheduleSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
     class Meta:
         model = Schedule
         fields = '__all__'
@@ -9,6 +11,7 @@ class ScheduleSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'user', 'is_finalized', 'created', 'updated')
 
 class InvitationSerializer(serializers.ModelSerializer):
+    schedule = ScheduleSerializer(read_only=True)
     invited_user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
     deadline = serializers.DateTimeField(required=True)
     non_busy_times = serializers.JSONField(required=False, default=dict, allow_null=True)

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { redirect, useNavigate } from 'react-router-dom';
 
 function SchedulesPage() {
   const [schedules, setSchedules] = useState([]);
@@ -12,8 +13,11 @@ function SchedulesPage() {
     invited: true,
   });
 
+
   const [newScheduleName, setNewScheduleName] = useState('');
   const [showNewScheduleInput, setShowNewScheduleInput] = useState(false);
+
+  const navigate = useNavigate();
 
 
   const login = async (username, password) => {
@@ -90,23 +94,42 @@ function SchedulesPage() {
 
   // Render schedules by finalized status
   const renderSchedulesByFinalizedStatus = (isFinalized) => {
+
     return schedules
       .filter(schedule => schedule.is_finalized === isFinalized)
       .map(schedule => (
-        <li key={schedule.id} className="bg-white rounded-lg shadow mb-2 p-4">
-          {schedule.name}
+        <li key={schedule.id} className="bg-white rounded-lg shadow mb-2 p-4 flex justify-between items-center">
+          <span className='text-lg'>{schedule.name}</span>
+          <div className="flex items-center space-x-2"> {/* Container for icons with spacing */}
+            <svg onClick={() => navigate(`/schedules/${schedule.id}`)} className="h-6 w-6 text-gray-700" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z"/>
+              <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+              <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+              <line x1="16" y1="5" x2="19" y2="8"/>
+            </svg>
+            <svg className="h-6 w-6 text-gray-700" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z"/>
+              <line x1="4" y1="7" x2="20" y2="7"/>
+              <line x1="10" y1="11" x2="10" y2="17"/>
+              <line x1="14" y1="11" x2="14" y2="17"/>
+              <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/>
+              <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/>
+            </svg>
+          </div>
         </li>
       ));
   };
-
+  
   // Render invited schedules
   const renderInvitedSchedules = () => {
     return invitations.map(invitation => (
-      <li key={invitation.id} className="bg-white rounded-lg shadow mb-2 p-4">
-        {invitation.schedule.name}
+      <li key={invitation.id} className="bg-white rounded-lg shadow mb-2 p-4 flex justify-between items-center">
+        <span className='text-lg'>{invitation.schedule.name} by {invitation.schedule.user.first_name}</span>
+        <svg onClick={() => navigate(`/invitations/${invitation.id}`)} class="h-6 w-6 text-gray-700"  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />  <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />  <line x1="16" y1="5" x2="19" y2="8" /></svg>
       </li>
     ));
   };
+  
 
   const handleAddSchedule = async (e) => {
     if (e.key === 'Enter' && newScheduleName.trim()) {
@@ -136,6 +159,7 @@ function SchedulesPage() {
   
 
   return (
+    < main className="pt-20">
     <div className="container mx-auto px-8 py-12">
   <div className="flex justify-between items-center mb-6">
     <h2 className="text-3xl font-bold px-4">Schedules</h2>
@@ -200,6 +224,7 @@ function SchedulesPage() {
       </ul>
     </div>
   </div>
+  </main>
   
 
 
