@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import ContactModal from './ContactModal';
 
 
-function ContactCard ({ contact }) {
+function ContactCard ({ contact, setIsModalOpen, setEditingContact}) {
 
     const handleDelete = () => {
         if (window.confirm(`Are you sure you want to delete ${contact.name}?`)) {
@@ -28,7 +28,8 @@ function ContactCard ({ contact }) {
     }
 
     const editContact = () => {
-    
+        setIsModalOpen(true);
+        setEditingContact(contact);
     }
 
     

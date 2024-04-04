@@ -62,7 +62,7 @@ function ContactsPage() {
   }, []);
 
   const allContacts = contacts.map((contact) => {
-    return <ContactCard key={contact.id} contact={contact} />;
+    return <ContactCard key={contact.id} contact={contact} setIsModalOpen={setIsModalOpen} setEditingContact={setEditingContact}  />;
   });
 
   const editContact = async (contact) => {
@@ -89,9 +89,7 @@ function ContactsPage() {
       {loading && <p>Loading contacts...</p>}
       {error && <p>Error fetching contacts: {error}</p>}
       <div className='all_contacts'>
-                {contacts.map((contact) => (
-                    <ContactCard key={contact.id} contact={contact} onEdit={onEdit} />
-                ))}
+        {allContacts}
       </div>
       {isModalOpen && <ContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} contact={editingContact} onSave={editContact()} />}
     </div>
