@@ -123,7 +123,7 @@ function ScheduleEditPage() {
                 
                 <div className='flex flex-col md:flex-row justify-center gap-8 md:gap-4 items-start px-10'>
     <div className="flex-grow p-6">
-        <TimeTable schedule={schedule} />
+        <TimeTable schedule={schedule} isInvite={false}/>
     </div>
 
     {/* Participants Table */}
