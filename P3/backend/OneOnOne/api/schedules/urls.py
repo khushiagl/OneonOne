@@ -14,7 +14,8 @@ from .views import (
     InvitationDeleteAPIView,
     FinalizedMeetingsListView,
     FinalizedMeetingDetailView,
-    SendReminderView
+    SendReminderView,
+    FinalizedScheduleView
 )
 
 app_name='schedules'
@@ -33,6 +34,7 @@ urlpatterns = [
     path('suggestions/<int:pk>/finalize/', FinalizeScheduleAPIView.as_view(), name='final-schedule-create'),
     path('<int:pk>/meetings/', FinalizedMeetingsListView.as_view(), name='final-schedule'),
     path('meetings/<int:pk>/', FinalizedMeetingDetailView.as_view(), name='meeting'),
-    path('<int:pk>/send-reminders/', SendReminderView.as_view(), name='send-reminders')
+    path('<int:pk>/send-reminders/', SendReminderView.as_view(), name='send-reminders'),
+    path('finalized/', FinalizedScheduleView.as_view(), name='finalized-schedules'),
 ]
 
