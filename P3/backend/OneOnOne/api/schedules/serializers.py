@@ -25,14 +25,31 @@ class InvitationSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+# class FinalizedMeetingSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = FinalizedMeeting
+#         fields = '__all__'
+
 class FinalizedMeetingSerializer(serializers.ModelSerializer):
+    owner = UserSerializer(read_only=True)
+    invited_user = UserSerializer(read_only=True)
+    schedule = ScheduleSerializer(read_only=True)
+
+    is_owned_by_current_user = serializers.SerializerMethodField()
+
     class Meta:
         model = FinalizedMeeting
-        fields = '__all__'
+        fields = '__all__'  # Add 'is_owned_by_current_user' to your fields if you list them explicitly
+        # If you specify fields explicitly, ensure to include 'is_owned_by_current_user'
+
+    def get_is_owned_by_current_user(self, obj):
+        # 'self.context['request'].user' accesses the current user from the request context
+        return obj.owner == self.context['request'].user
 
 class SuggestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SuggestedSchedule
         fields = '__all__'
+
 
 
