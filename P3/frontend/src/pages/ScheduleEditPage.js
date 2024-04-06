@@ -86,7 +86,7 @@ function ScheduleEditPage() {
 
     const LegendItem = ({ color, text }) => (
         <div className="flex items-center mb-2">
-          <span className={`${color} w-3 h-3 mr-2`} />
+          <span className={`${color} border w-3 h-3 mr-2`} />
           {text}
         </div>
       );
@@ -128,31 +128,38 @@ function ScheduleEditPage() {
 
     {/* Participants Table */}
     <div className='p-6 flex flex-col'>
-    <div className="bg-white shadow-lg overflow-hidden rounded-lg max-w-md">
-        <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse text-sm">
-                <thead>
-                    <tr className="border">
-                        <th className="border-r p-4">Participants</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {participants.map((participant, index) => (
-                        <tr key={index} className="border">
-                            <td className="p-2 border">{participant}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <div className="mt-2 p-2 bg-white shadow-lg overflow-hidden rounded-lg max-w-md">
-        <h3 className="text-lg mb-2">Legend</h3>
+    <div className="p-2 border bg-white shadow-lg overflow-hidden rounded-lg max-w-md">
+        <h3 className="text mb-2">Legend</h3>
         <LegendItem color="bg-yellow-200" text="Low Priority" />
         <LegendItem color="bg-green-200" text="Medium Priority" />
         <LegendItem color="bg-blue-200" text="High Priority" />
         <LegendItem color="border" text="Not Available" />
       </div>
+      <div className="mt-2 border bg-white shadow-lg overflow-hidden rounded-lg max-w-md">
+    <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse text-sm">
+            <thead>
+                <tr className="border">
+                    <th className="border-r p-4">Participants</th>
+                </tr>
+            </thead>
+            <tbody>
+                {participants.map((participant, index) => (
+                    <tr key={index} className="border">
+                        <td className="p-2 border">{participant}</td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    </div>
+    <div className="flex justify-end p-4">
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
+            Invite Participants
+        </button>
+    </div>
+</div>
+
+    
     </div>
     </div>
 
