@@ -3,16 +3,14 @@ import { useState, useEffect } from 'react';
 import ContactCard from '../components/Contacts/ContactCard';
 import ContactModal from '../components/Contacts/ContactModal';
 
+
+
 function ContactsPage() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingContact, setEditingContact] = useState(null); // State to track the editing contact
     const [isModalOpen, setIsModalOpen] = useState(false); // State to track if the modal is open
-    const onEdit = (contact) => {
-        setEditingContact(contact);
-        setIsModalOpen(true);
-    };
 
   const login = async (username, password) => {
     try {
@@ -26,22 +24,40 @@ function ContactsPage() {
       if (!response.ok) {
         throw new Error('Login failed');
       }
-      const data = await response.json(); // Assuming the backend responds with a JSON object containing the token
+      const data = await response.json(); 
       console.log('Login successful:', data);
-      // Here you would typically save the token to local storage and redirect the user
-      localStorage.setItem('token', data.access); // Adjust depending on how your token is returned
-      // Redirect user or perform other actions upon successful login
+      localStorage.setItem('token', data.access); 
     } catch (error) {
       console.error('Login error:', error.message);
       // Handle errors, e.g., show an error message to the user
     }
   };
 
+  const fetchContacts = async () => {
+    try {
+      const contactsResponse = await fetch(' http://127.0.0.1:8000/api/contacts/all_contacts/', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}` // Include the token in the Authorization header
+        }
+      });
+      if (!contactsResponse.ok) throw new Error('Failed to fetch contacts');
+      const contactsData = await contactsResponse.json();
+
+      setContacts(contactsData);
+    }
+    catch (err) {
+      setError(err.message);
+    }
+    finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    login("a", "Hello@123");
+    login("colepurboo", "Nigela123$");
     const fetchContacts = async () => {
       try {
-        const contactsResponse = await fetch(' http://127.0.0.1:8000/api/all_contacts/', {
+        const contactsResponse = await fetch(' http://127.0.0.1:8000/api/contacts/all_contacts/', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}` // Include the token in the Authorization header
           }
@@ -61,41 +77,61 @@ function ContactsPage() {
     fetchContacts();
   }, []);
 
-  const allContacts = contacts.map((contact) => {
-    return <ContactCard key={contact.id} contact={contact} setIsModalOpen={setIsModalOpen} setEditingContact={setEditingContact}  />;
+  const resetContacts = () => {
+    fetchContacts();
+  }
+
+  const allContacts = contacts.map((contact, index) => {
+    return <ContactCard resetContacts={resetContacts} key={index} contact={contact} />;
+    
   });
 
-  const editContact = async (contact) => {
+
+  const handleAddContact = () => {
+    setEditingContact(null); // Ensure we're in "add" mode
+    setIsModalOpen(true);
+  };
+  
+  const saveContact = async (contactDetails) => {
+
     try {
-      const response = await fetch(`http://localhost:8000/api/edit_contacts/${contact.id}/`, {
-        method: 'PUT',
+      const response = await fetch('http://localhost:8000/api/contacts/add_contact/', { 
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify(contact)
       });
-      if (!response.ok) throw new Error('Failed to edit contact');
-      console.log('Contact edited');
+      if (!response.ok) {
+        throw new Error('Add failed');
+      }
+
+      if (!response.ok) throw new Error('Failed to save contact');
+      console.log('Contact saved');
+      setIsModalOpen(false);
     } catch (err) {
       console.error(err.message);
     }
   };
 
+ 
 
   return (
-    <div>
-      <h2>Contacts Page</h2>
-      {loading && <p>Loading contacts...</p>}
-      {error && <p>Error fetching contacts: {error}</p>}
-      <div className='all_contacts'>
-        {allContacts}
-      </div>
-      {isModalOpen && <ContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} contact={editingContact} onSave={editContact()} />}
-    </div>
+    <main>
+      <h1 className='mt-32 text-red-500'>Contacts</h1>
+      <button 
+        onClick={handleAddContact}
+        className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-4'>
+        Add Contact
+      </button>
+        <div>
+          {allContacts} 
+        </div>
+    </main>
+    
   );
 }
 
 export default ContactsPage;
+
 
 
