@@ -12,9 +12,10 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 class InvitationSerializer(serializers.ModelSerializer):
     schedule = ScheduleSerializer(read_only=True)
-    invited_user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
+    # invited_user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
     deadline = serializers.DateTimeField(required=True)
     non_busy_times = serializers.JSONField(required=False, default=dict, allow_null=True)
+    invited_user = UserSerializer(read_only=True)
     class Meta:
         model = Invitation
         fields = '__all__'

@@ -5,15 +5,24 @@ from ..serializers import ContactSerializer
 from rest_framework import status
 from rest_framework import permissions
 
-class AddContact(generics.CreateAPIView):
-    permission_classes = [permissions.IsAuthenticated] # This
-    queryset = Contacts.objects.all()
-    serializer_class = ContactSerializer
-    
-    def perform_create(self, serializer_class):
-        try:
-            serializer_class.save(user=self.request.user)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        
-    
+from django.contrib.auth.models import User
+from django.db.models import Q
+from django.db import IntegrityError
+
+# views.py
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+
+class AddContactView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # Set the 'user' field to the current user
+        request.data['user'] = request.user.pk
+        serializer = ContactSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)

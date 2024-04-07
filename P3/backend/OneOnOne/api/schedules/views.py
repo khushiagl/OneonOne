@@ -612,4 +612,9 @@ class FinalizedScheduleView(APIView):
 
         # Return the serialized data
         return Response(serializer.data)
+    
+
+    
+
+
 

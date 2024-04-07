@@ -10,6 +10,8 @@ function ScheduleEditPage() {
     const [isEditing, setIsEditing] = useState(false); 
     const [editedTitle, setEditedTitle] = useState(''); 
     const [participants, setParticipants] = useState([]);
+    const [showInviteModal, setShowInviteModal] = useState(false);
+    const [allContacts, setAllContacts] = useState([]);
 
     useEffect(() => {
         const fetchScheduleData = async () => {
@@ -25,16 +27,16 @@ function ScheduleEditPage() {
                 const data = await response.json();
 
                 // Placeholder fetch for participants, replace URL as needed
-                // const participantsResponse = await fetch(`http://127.0.0.1:8000/api/schedules/${id}/participants/`, {
-                //     headers: {
-                //         'Authorization': `Bearer ${localStorage.getItem('token')}`
-                //     }
-                // });
-                // if (!participantsResponse.ok) {
-                //     throw new Error(`Error: ${participantsResponse.status}`);
-                // }
-                // const participantsData = await participantsResponse.json();
-                const participantsData = ["a", "b", "c", "d"]
+                const participantsResponse = await fetch(`http://127.0.0.1:8000/api/schedules/${id}/invitations/`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                if (!participantsResponse.ok) {
+                    throw new Error(`Error: ${participantsResponse.status}`);
+                }
+                const participantsData = await participantsResponse.json();
+                // const participantsData = ["a", "b", "c", "d"]
                 setSchedule(data);
                 setEditedTitle(data.name); 
                 setParticipants(participantsData);
@@ -47,6 +49,36 @@ function ScheduleEditPage() {
 
         fetchScheduleData();
     }, [id]);
+
+    useEffect(() => {
+        const fetchAllContacts = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/contacts/', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+                const contactsData = await response.json();
+                setAllContacts(contactsData);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchAllContacts();
+    }, []); 
+
+    
+    const handleInviteButtonClick = () => {
+        setShowInviteModal(true);
+    };
+
+    const closeInviteModal = () => {
+        setShowInviteModal(false);
+    };
 
     const handleTitleClick = () => {
         setIsEditing(true);
@@ -146,7 +178,7 @@ function ScheduleEditPage() {
             <tbody>
                 {participants.map((participant, index) => (
                     <tr key={index} className="border">
-                        <td className="p-2 border">{participant}</td>
+                        <td className="p-2 border">{participant.invited_user.first_name}</td>
                     </tr>
                 ))}
             </tbody>
@@ -162,6 +194,14 @@ function ScheduleEditPage() {
     
     </div>
     </div>
+
+    {showInviteModal && (
+                <InviteParticipantsModal
+                    onClose={closeInviteModal}
+                    allContacts={allContacts.filter(contact => !participants.some(participant => participant.invited_user.email === contact.contact_email))} 
+                    onSendInvites={handleSendInvites}
+                />
+            )}
 
 
         </main>
