@@ -3,8 +3,11 @@ import FinalTimeTable from'../components/FinalTimeTable'; // Assuming the path t
 
 function HomePage() {
     const [meetings, setMeetings] = useState(null);
+    const [schedules, setSchedules] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    
+
 
     useEffect(() => {
         const fetchScheduleData = async () => {
@@ -21,8 +24,18 @@ function HomePage() {
                 console.log(data);
 
                 setMeetings(data);
-                // setEditedTitle(data.name); 
-                // setParticipants(participantsData);
+                // Initialize a new Map for unique schedules
+                const schedulesMap = new Map();
+                data.forEach(meeting => {
+                    const { id, name } = meeting.schedule;
+                    if (!schedulesMap.has(id)) {
+                        schedulesMap.set(id, { id, name });
+                    }
+                });
+
+                const uniqueSchedules = Array.from(schedulesMap.values());
+                setSchedules(uniqueSchedules);
+                
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -33,6 +46,9 @@ function HomePage() {
         fetchScheduleData();
     }, []);
 
+    
+    
+
     if (loading) return <main className="pt-10 md:pt-20"><div>Loading...</div></main>;
     if (error) return <div>Error: {error}</div>;
 
@@ -40,9 +56,8 @@ function HomePage() {
     <main className="pt-16 md:pt-20">
       <div>
       <h2>Home Page</h2>
-      <div className="flex-grow p-6">
-      <FinalTimeTable meetings={meetings} schedules={[]}/> 
-      </div>
+      
+      <FinalTimeTable meetings={meetings} schedules={schedules}/> 
     </div>
     </main>
     

@@ -13,8 +13,15 @@ const FinalTimeTable = ({ meetings, schedules }) => {
     };
 
     const [slots, setSlots] = useState([]);
+    const [selectedSchedules, setSelectedSchedules] = useState(new Set());
 
     const timeSlots = generateTimeSlots();
+
+    useEffect(() => {
+      // Initially select all schedules
+      const allScheduleIds = schedules.map(schedule => schedule.id);
+      setSelectedSchedules(new Set(allScheduleIds));
+  }, [schedules]);
 
     useEffect(() => {
         const initSlots = timeSlots.map(timeSlot => 
@@ -24,7 +31,7 @@ const FinalTimeTable = ({ meetings, schedules }) => {
         // Loop through meetings and assign labels to matching day and time slots
         meetings.forEach(meeting => {
             // Check if the meeting's schedule ID is in the list of allowed schedule IDs
-            if (schedules.includes(meeting.schedule.id)) {
+            if (selectedSchedules.has(meeting.schedule.id)) {
                 const meetingTimeWithoutSeconds = meeting.time.substring(0, 5);
                 const dayIndex = daysOfWeek.indexOf(meeting.day);
                 const timeIndex = timeSlots.indexOf(meetingTimeWithoutSeconds);
@@ -39,7 +46,20 @@ const FinalTimeTable = ({ meetings, schedules }) => {
         });
 
         setSlots(initSlots);
-    }, [meetings]);
+        
+        console.log(selectedSchedules)
+    }, [meetings, selectedSchedules]);
+
+    const handleCheckboxChange = (e, scheduleId) => {
+      const newSelectedSchedules = new Set(selectedSchedules);
+      if (e.target.checked) {
+          newSelectedSchedules.add(scheduleId);
+      } else {
+          newSelectedSchedules.delete(scheduleId);
+      }
+      setSelectedSchedules(newSelectedSchedules);
+      
+  };
 
     const getBackgroundColor = (id) => {
         if (!id) return ''; 
@@ -51,6 +71,39 @@ const FinalTimeTable = ({ meetings, schedules }) => {
     };
 
     return (
+      <div className='flex flex-col md:flex-row justify-center gap-8 md:gap-4 items-start px-10'>
+        
+        {/* Conditionally render schedules table */}
+        {schedules.length > 0 && (
+                <div className='p-6 flex flex-col'>
+                    <div className="mt-2 border bg-white shadow-lg overflow-hidden rounded-lg max-w-md">
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full text-sm">
+                                <thead>
+                                    <tr className="border">
+                                        <th className="p-4" colSpan="2">Schedules</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {schedules.map((schedule) => (
+                                        <tr key={schedule.id} className="border">
+                                            <td className="p-2 text-center whitespace-nowrap">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedSchedules.has(schedule.id)}
+                                                    onChange={(e) => handleCheckboxChange(e, schedule.id)}
+                                                />
+                                            </td>
+                                            <td className='p-2'>{schedule.name}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+      <div className="flex-grow p-6">
         <div class="bg-white shadow-lg overflow-hidden rounded-lg">
           <table className="min-w-full max-w-lg mx-auto border-collapse block md:table text-sm">
             <thead className="block md:table-header-group">
@@ -81,6 +134,8 @@ const FinalTimeTable = ({ meetings, schedules }) => {
               ))}
             </tbody>
           </table>
+        </div>
+        </div>
         </div>
       );
 };
