@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import TimeTable from '../components/TimeTable';
+import InviteParticipantsModal from '../components/InviteParticipantsModal';
 
 function ScheduleEditPage() {
     const { id } = useParams();
@@ -53,7 +54,7 @@ function ScheduleEditPage() {
     useEffect(() => {
         const fetchAllContacts = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/contacts/', {
+                const response = await fetch('http://127.0.0.1:8000/api/contacts/all_contacts/', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -185,7 +186,7 @@ function ScheduleEditPage() {
         </table>
     </div>
     <div className="flex justify-end p-4">
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
+        <button onClick={handleInviteButtonClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
             Invite Participants
         </button>
     </div>
@@ -198,8 +199,7 @@ function ScheduleEditPage() {
     {showInviteModal && (
                 <InviteParticipantsModal
                     onClose={closeInviteModal}
-                    allContacts={allContacts.filter(contact => !participants.some(participant => participant.invited_user.email === contact.contact_email))} 
-                    onSendInvites={handleSendInvites}
+                    allContacts={allContacts.filter(contact => !participants.some(participant => participant.invited_user.username === contact.contact.username))} 
                 />
             )}
 

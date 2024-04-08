@@ -2,8 +2,10 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Contacts
+from ..users.serializers import UserSerializer
 
 class ContactSerializer(serializers.ModelSerializer):
+    contact = UserSerializer(read_only=True)
     class Meta:
         model = Contacts
         fields = ['id', 'user', 'contact']
