@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import TimeTable from '../components/TimeTable';
 import InviteParticipantsModal from '../components/InviteParticipantsModal';
+import SuggestedScheduleModal from '../components/SuggestedScheduleModal';
 
 function ScheduleEditPage() {
     const { id } = useParams();
@@ -13,6 +14,8 @@ function ScheduleEditPage() {
     const [participants, setParticipants] = useState([]);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [allContacts, setAllContacts] = useState([]);
+    const [showSuggestedScheduleModal, setShowSuggestedScheduleModal] = useState(false);
+
 
     useEffect(() => {
         const fetchScheduleData = async () => {
@@ -114,8 +117,17 @@ function ScheduleEditPage() {
         }
     };
 
+    const handleSuggestedScheduleClick = () => {
+        setShowSuggestedScheduleModal(true);
+    };
+    
+    const closeSuggestedScheduleModal = () => {
+        setShowSuggestedScheduleModal(false);
+    };
+    
+
     if (loading) return <main className="pt-10 md:pt-20"><div>Loading...</div></main>;
-    if (error) return <div>Error: {error}</div>;
+    if (error) return <main className="pt-10 md:pt-20"><div>Error: {error}</div></main>;
 
     const LegendItem = ({ color, text }) => (
         <div className="flex items-center mb-2">
@@ -127,8 +139,11 @@ function ScheduleEditPage() {
     return (
         <main className="pt-16 md:pt-20">
             
-                {isEditing ? (
-                    <div className="container mx-auto px-10 pt-8 flex items-center gap-4">
+            <div className="container mx-auto px-10 pt-8">
+    <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4 p-6">
+            {isEditing ? (
+                <>
                     <input
                         type="text"
                         value={editedTitle}
@@ -138,21 +153,29 @@ function ScheduleEditPage() {
                         autoFocus
                         onBlur={() => setIsEditing(false)}
                     />
-                    </div>
-                ) : (
-                    <div className="container mx-auto px-10 pt-8 flex items-center gap-4">
+                </>
+            ) : (
+                <>
                     <h2 onClick={handleTitleClick} className="text-3xl font-bold cursor-pointer">
                         {schedule.name}
                     </h2>
                     <svg onClick={handleTitleClick} className="h-6 w-6 text-gray-700 cursor-pointer" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z"/>
-                    <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
-                    <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
-                    <line x1="16" y1="5" x2="19" y2="8"/>
-                </svg>
-                </div>
-                    
-                )}
+                        <path stroke="none" d="M0 0h24v24H0z"/>
+                        <path d="M9 7 h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3"/>
+                        <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3"/>
+                        <line x1="16" y1="5" x2="19" y2="8"/>
+                    </svg>
+                </>
+            )}
+        </div>
+        <div className='p-6 flex flex-col'>
+        <button onClick={handleSuggestedScheduleClick} className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded">
+            Suggest Schedules
+        </button>
+        </div>
+    </div>
+</div>
+
                 
                 <div className='flex flex-col md:flex-row justify-center gap-8 md:gap-4 items-start px-10'>
     <div className="flex-grow p-6">
@@ -220,6 +243,14 @@ function ScheduleEditPage() {
                     id={id}
                 />
             )}
+
+{showSuggestedScheduleModal && (
+    <SuggestedScheduleModal
+        onClose={closeSuggestedScheduleModal}
+        id={id}
+    />
+)}
+
 
 
         </main>
