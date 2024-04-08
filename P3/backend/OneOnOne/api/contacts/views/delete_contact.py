@@ -13,16 +13,16 @@ class DeleteContact(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
-        contact_email = request.data.get('contact_email')
+        username = request.data.get('username')
         user = request.user
 
-        if not contact_email:
-            return Response({'error': 'Contact email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not username:
+            return Response({'error': 'Username is required.'}, status=status.HTTP_400_BAD_REQUEST)
         
         try:
-            contact = Contacts.objects.get(user=user, contact_email=contact_email)
+            contact = Contacts.objects.get(user=user, contact=username)
         except ObjectDoesNotExist:
-            return Response({'error': 'No contact found with the provided email for this user.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'No contact found with the provided username for this user.'}, status=status.HTTP_404_NOT_FOUND)
         
         # No need to check object-level permissions here since we're verifying the user directly
         contact.delete()

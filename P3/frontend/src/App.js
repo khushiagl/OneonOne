@@ -5,7 +5,8 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import ContactsPage from './pages/ContactsPage';
 import SchedulesPage from './pages/SchedulesPage';
-import ScheduleEditPage from './pages/ScheduleEditPage'; // Import the ScheduleEditPage component
+import ScheduleEditPage from './pages/ScheduleEditPage'; 
+import InvitationEditPage from './pages/InvitationEditPage';
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
         <Route path="/contacts" element={<ContactsPage />} />
         <Route path="/schedules" element={<SchedulesPage />} />
         <Route path="/schedules/:id" element={<ScheduleEditPage />} />
-        <Route path="/invitations/:id" element={<ScheduleEditPage />} />
+        <Route path="/invitations/:id" element={<InvitationEditPage />} />
       </Routes>
     </Router>
   );

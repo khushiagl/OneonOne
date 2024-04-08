@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const TimeTable = ({ schedule }) => {
+const TimeTable = ({ schedule, isInvite }) => {
     const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   
     // Helper function to generate time slots
@@ -27,6 +27,16 @@ const TimeTable = ({ schedule }) => {
 
     const updateScheduleInDb = async (newNonBusyTimes) => {
         try {
+          if (isInvite) {
+            await fetch(`http://127.0.0.1:8000/api/schedules/invitations/${schedule.id}/responses/`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('token')}` 
+            },
+            body: JSON.stringify({ non_busy_times: newNonBusyTimes }),
+          });
+        } else {
           await fetch(`http://127.0.0.1:8000/api/schedules/${schedule.id}/preferences/`, {
             method: 'PUT',
             headers: {
@@ -35,6 +45,7 @@ const TimeTable = ({ schedule }) => {
             },
             body: JSON.stringify({ non_busy_times: newNonBusyTimes }),
           });
+        }
         } catch (error) {
           console.error('Failed to update schedule', error);
         }

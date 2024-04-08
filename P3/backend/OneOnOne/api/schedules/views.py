@@ -19,6 +19,7 @@ from rest_framework.exceptions import PermissionDenied
 from django.db.models import Q
 
 
+
 #User.objects.create_user('default_username', password='default_password', email='default_user@example.com')
 # User.objects.create_user('testuser1', 'test1@example.com', 'testpassword')
 # User.objects.create_user('testuser2', 'test2@example.com', 'testpassword')
@@ -178,7 +179,7 @@ class ScheduleInvitationsListCreateAPIView(generics.ListCreateAPIView): #works
         if Invitation.objects.filter(schedule_id=schedule_id, invited_user=invited_user).exists():
             raise ValidationError('An invitation to this user for the current schedule already exists.')
         
-        if not Contacts.objects.filter(user=self.request.user, contact_email=invited_user.email).exists():
+        if not Contacts.objects.filter(user=self.request.user, contact=invited_user).exists():
             raise ValidationError(f'The invited user {invited_user.email} is not a contact of the user.')
 
         # Save the invitation with the schedule_id
@@ -592,3 +593,28 @@ class SendReminderView(APIView):
             send_mail(subject, message, email_from, recipient_list)
 
         return Response({"message": "Reminders sent successfully."})
+    
+
+class FinalizedScheduleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # Retrieve the user from the request
+        user = request.user
+
+        # Query for finalized meetings involving the user, either as the owner or invited user
+        finalized_meetings = FinalizedMeeting.objects.filter(
+            Q(owner=user) | Q(invited_user=user)
+        )
+
+        # Serialize the data
+        serializer = FinalizedMeetingSerializer(finalized_meetings, many=True, context={'request': request})
+
+        # Return the serialized data
+        return Response(serializer.data)
+    
+
+    
+
+
+

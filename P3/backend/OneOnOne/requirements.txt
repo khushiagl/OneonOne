@@ -1,7 +1,6 @@
 asgiref==3.7.2
 blinker==1.4
 cfgv==3.3.1
-command-not-found==0.3
 cryptography==3.4.8
 dbus-python==1.2.18
 distlib==0.3.6
