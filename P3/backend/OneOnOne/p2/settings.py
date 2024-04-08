@@ -16,6 +16,8 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+STATIC_ROOT = str(BASE_DIR / 'staticfiles')
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,9 +27,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-8+69+p+49a6&^b69f3q+_b^6k7vl820c$)y^8=eeb(b-k@csof'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['35.182.246.202']
 
 
 # Application definition
