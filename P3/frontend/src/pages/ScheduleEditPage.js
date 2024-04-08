@@ -186,7 +186,7 @@ function ScheduleEditPage() {
         </table>
     </div>
     <div className="flex justify-end p-4">
-        <button onClick={handleInviteButtonClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
+        <button onClick={handleInviteButtonClick} className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-lg">
             Invite Participants
         </button>
     </div>

@@ -96,10 +96,10 @@ function InviteParticipantsModal({ onClose, allContacts, id }) {
                     ))}
                 </div>
                 <div className="mt-4 flex justify-end">
-                    <button onClick={handleSendInvites} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg mr-2">
+                    <button onClick={handleSendInvites} className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-lg mr-2">
                         Invite
                     </button>
-                    <button onClick={onClose} className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg">
+                    <button onClick={onClose} className="bg-gray-700 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-lg">
                         Cancel
                     </button>
                 </div>
