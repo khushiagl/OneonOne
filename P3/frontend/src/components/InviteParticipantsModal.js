@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-function InviteParticipantsModal({ onClose, allContacts }) {
+function InviteParticipantsModal({ onClose, allContacts, id }) {
     const [selectedContacts, setSelectedContacts] = useState([]);
     const [deadline, setDeadline] = useState('');
+    const [isSendingInvites, setIsSendingInvites] = useState(false);
 
     const handleCheckboxChange = (contactId) => {
         setSelectedContacts(prev => {
@@ -14,12 +15,50 @@ function InviteParticipantsModal({ onClose, allContacts }) {
         });
     };
 
+    // Using useEffect to log the updated state
+    useEffect(() => {
+        console.log(selectedContacts);
+    }, [selectedContacts]);
+
     const handleDeadlineChange = (e) => {
         setDeadline(e.target.value);
     };
 
-    const onSendInvites = (selectedContacts, deadline) => {
-        
+    const onSendInvites = async (selectedContacts, deadline) => {
+        setIsSendingInvites(true);
+        const today = new Date();
+        const selectedDate = new Date(deadline);
+        if (selectedDate < today) {
+            alert('Please select a deadline that is in the future.');
+            setIsSendingInvites(false);
+            return;
+        }
+        console.log(selectedContacts)
+
+        for (const contactId of selectedContacts) {
+            console.log(JSON.stringify({ "invited_user": contactId, "deadline": deadline }))
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/schedules/${id}/invitations/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ "invited_user_id": contactId, "deadline": deadline }),
+                });
+
+                if (!response.ok) {
+                    // Handle non-2xx responses here
+                    console.error('Failed to send invitation:', response.statusText);
+                    // Continue sending the rest of the invitations
+                }
+            } catch (error) {
+                console.error('Error sending invitation:', error);
+                // Handle errors (e.g., network error) and continue sending the rest of the invitations
+            }
+        }
+        setIsSendingInvites(false);
+        onClose(); // Close the modal after sending all invites
     };
 
     const handleSendInvites = () => {
@@ -44,15 +83,15 @@ function InviteParticipantsModal({ onClose, allContacts }) {
                     <h4 className="text-md">Select Contacts:</h4>
                     {allContacts.map(contact => (
                         console.log(contact),
-                        <div key={contact.contact.username} className="flex items-center">
+                        <div key={contact.contact.id} className="flex items-center">
                             <input
                                 type="checkbox"
-                                id={`contact-${contact.contact.username}`}
-                                checked={selectedContacts.includes(contact.contact.username)}
-                                onChange={() => handleCheckboxChange(contact.contact.username)}
+                                id={`contact-${contact.contact.id}`}
+                                checked={selectedContacts.includes(contact.contact.id)}
+                                onChange={() => handleCheckboxChange(contact.contact.id)}
                                 className="mr-2"
                             />
-                            <label htmlFor={`contact-${contact.contact.username}`}>{contact.contact.first_name}</label>
+                            <label htmlFor={`contact-${contact.contact.id}`}>{contact.contact.first_name}</label>
                         </div>
                     ))}
                 </div>

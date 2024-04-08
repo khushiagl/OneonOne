@@ -49,7 +49,7 @@ function ScheduleEditPage() {
         };
 
         fetchScheduleData();
-    }, [id]);
+    }, [id, showInviteModal]);
 
     useEffect(() => {
         const fetchAllContacts = async () => {
@@ -95,7 +95,7 @@ function ScheduleEditPage() {
 
             try {
                 const response = await fetch(`http://127.0.0.1:8000/api/schedules/${id}/`, {
-                    method: 'PUT', // or 'PUT' if your backend requires
+                    method: 'PUT', 
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                         'Content-Type': 'application/json',
@@ -200,6 +200,7 @@ function ScheduleEditPage() {
                 <InviteParticipantsModal
                     onClose={closeInviteModal}
                     allContacts={allContacts.filter(contact => !participants.some(participant => participant.invited_user.username === contact.contact.username))} 
+                    id={id}
                 />
             )}
 

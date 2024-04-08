@@ -179,7 +179,7 @@ class ScheduleInvitationsListCreateAPIView(generics.ListCreateAPIView): #works
         if Invitation.objects.filter(schedule_id=schedule_id, invited_user=invited_user).exists():
             raise ValidationError('An invitation to this user for the current schedule already exists.')
         
-        if not Contacts.objects.filter(user=self.request.user, contact_email=invited_user.email).exists():
+        if not Contacts.objects.filter(user=self.request.user, contact=invited_user).exists():
             raise ValidationError(f'The invited user {invited_user.email} is not a contact of the user.')
 
         # Save the invitation with the schedule_id
