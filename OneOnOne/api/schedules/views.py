@@ -420,7 +420,7 @@ class SuggestedSchedulesListAPIView(APIView):
             })   
 
         # Step 2: Distribute meetings across three calendars
-        calendars = self.distribute_meetings_across_calendars(all_user_meetings)
+        calendars = self.distribute_meetings_across_calendars(all_user_meetings, schedule)
 
         return calendars
 
@@ -436,62 +436,73 @@ class SuggestedSchedulesListAPIView(APIView):
 
         return matched_times    
     
-    def distribute_meetings_across_calendars(self, all_user_meetings):
-        # Initialize empty calendars
+    def distribute_meetings_across_calendars(self, all_user_meetings, schedule):
+        # Initialize empty calendars and track whether forced assignment was used.
         calendars = []
         max_length = max(len(user_meeting['meeting_options']) for user_meeting in all_user_meetings)
 
-        # Function to convert a calendar's meetings to a hashable form for distinctness checks
         def to_hashable(cal):
             return tuple(tuple(sorted(meeting.items())) for meeting in cal)
 
-        # Function to check if adding a new meeting results in an identical calendar
-        def is_unique_calendar(meeting, calendar, user_meetings):
+        def is_unique_calendar(meeting, calendar, user_meetings, is_forced=False):
             test_calendar = calendar + [{
-                                'day': meeting['day'],
-                                'time': meeting['time'],
-                                'user': user_meetings['invited_user'],
-                                'available_times': user_meetings['meeting_options']  # Include all available times
-                            }]
+                'day': meeting['day'],
+                'time': meeting['time'],
+                'user': user_meetings['invited_user']
+            }]
             test_calendar_hashable = to_hashable(test_calendar)
             for cal in calendars:
-                if to_hashable(cal) == test_calendar_hashable:                  
+                if to_hashable(cal) == test_calendar_hashable:
                     return False
             return True
 
-        # The existing logic to distribute meetings across calendars, slightly adjusted
+        # Adjusted logic to distribute meetings, incorporating primary user's availability for forced assignments
         n_of_calendars = 0
         i = 0
-        while n_of_calendars <= 3 and i < max_length:
+        while n_of_calendars < 3 and i < max_length:  # Ensure at least two calendars are created
             calendar = []
             scheduled_times = set()
-            all_assigned = True
             for user_meetings in all_user_meetings:
                 assigned = False
+                # Sort available times primarily by priority, then by day and time
                 sorted_times = sorted(user_meetings['meeting_options'], key=lambda x: (-x['priority'], x['day'], x['time']))
-                for index in range(len(sorted_times)):
-                    curr = (i + index) % len(sorted_times)
-                    meeting = sorted_times[curr]
-                    if (meeting['day'], meeting['time']) not in scheduled_times:
-                        if is_unique_calendar(meeting, calendar, user_meetings):
-                            calendar.append({
-                                'day': meeting['day'],
-                                'time': meeting['time'],
-                                'user': user_meetings['invited_user'],
-                                'available_times': user_meetings['meeting_options']  # Augment calendar entry
-                            })
-                            scheduled_times.add((meeting['day'], meeting['time']))
-                            assigned = True
+                for meeting in sorted_times:
+                    if (meeting['day'], meeting['time']) not in scheduled_times and is_unique_calendar(meeting, calendar, user_meetings):
+                        calendar.append({
+                            'day': meeting['day'],
+                            'time': meeting['time'],
+                            'user': user_meetings['invited_user'],
+                            'forced': False,  # This assignment is within availability
+                            'available_times': user_meetings['meeting_options']
+                        })
+                        scheduled_times.add((meeting['day'], meeting['time']))
+                        assigned = True
+                        break
+                if not assigned and n_of_calendars < 3:  # Try to assign based on primary user's availability
+                    for day, times in schedule.non_busy_times.items():
+                        for time, priority in times.items():
+                            if (day, time) not in scheduled_times and is_unique_calendar({'day': day, 'time': time}, calendar, user_meetings, is_forced=True):
+                                calendar.append({
+                                    'day': day,
+                                    'time': time,
+                                    'user': user_meetings['invited_user'],
+                                    'forced': True,  # Assignment outside invited user's availability
+                                    'available_times': user_meetings['meeting_options']
+                                })
+                                scheduled_times.add((day, time))
+                                assigned = True
+                                break
+                        if assigned:
                             break
-                if not assigned:
-                    all_assigned = False
+                if not assigned:  # If no assignment could be made, skip to the next calendar
                     break
-            if all_assigned:
+            if assigned:  # Only add the calendar if at least one meeting could be scheduled
                 n_of_calendars += 1
                 calendars.append(calendar)
             i += 1
 
         return calendars
+
 
     
     

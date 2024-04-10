@@ -47,7 +47,7 @@ class Invitation(models.Model):
         # If this is a new instance, send an email
         if is_new:
             subject = "Invitation to Schedule a Meeting"
-            message = f"Hello {self.invited_user.get_full_name() or self.invited_user.username},\n\nYou have been invited to schedule a regular meeting. Please visit our platform to view the invitation and submit your availability.\n\nThank you!"
+            message = f"Hello {self.invited_user.get_full_name() or self.invited_user.username},\n\nYou have been invited to schedule a regular meeting. PTo proceed, kindly access our platform by copying the following URL into your browser. This will allow you to view the invitation details and provide us with your available times.\n\nURL: http://localhost:8000/login\n\nThank you!"
             email_from = settings.DEFAULT_FROM_EMAIL
             recipient_list = [self.invited_user.email]
             
