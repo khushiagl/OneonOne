@@ -101,7 +101,7 @@ const SuggestedScheduleModal = ({ onClose, id }) => {
 
       <div>
         {/* Schedule Table */}
-        <div>
+        <div className='flex-grow'>
         {schedules[selectedScheduleIndex] && <SuggestedTimeTable meetings={schedules[selectedScheduleIndex].suggested_times} id={schedules[selectedScheduleIndex].id}></SuggestedTimeTable>}
         </div>
       </div>
