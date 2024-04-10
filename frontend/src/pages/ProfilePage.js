@@ -23,7 +23,7 @@ function UserProfilePage() {
       // Replace with the actual token retrieval method and API endpoint
       const token = localStorage.getItem('token');
       try {
-        const response = await fetchWithToken(backendUrl + '/api/users/profile/', {
+        const response = await fetchWithToken('/api/users/profile/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
