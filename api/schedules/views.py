@@ -449,6 +449,8 @@ class SuggestedSchedulesListAPIView(APIView):
                 'day': meeting['day'],
                 'time': meeting['time'],
                 'user': user_meetings['invited_user']
+                'forced': False,  # This assignment is within availability
+                'available_times': user_meetings['meeting_options']
             }]
             test_calendar_hashable = to_hashable(test_calendar)
             for cal in calendars:
