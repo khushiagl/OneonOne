@@ -48,10 +48,10 @@ function UserProfilePage() {
 
 
   return (
-    <main>
+    <main  className="pt-16 md:pt-20">
     <div className="container mx-auto mt-10">
       <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <h1 className="text-xl mb-4 font-bold">User Profile</h1>
+        <h1 className="text-xl mb-4 font-bold">My Profile</h1>
         <p>First Name: {profile.firstName}</p>
         <p>Last Name: {profile.lastName}</p>
         <p>Username: {profile.username}</p>
