@@ -26,7 +26,6 @@ function UserProfilePage() {
         const response = await fetchWithToken(backendUrl + '/api/users/profile/', {
           method: 'GET',
           headers: {
-            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
         });
