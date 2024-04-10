@@ -289,7 +289,7 @@ class SuggestedScheduleDetailView(generics.RetrieveAPIView):#WORKS
 
     def put(self, request, *args, **kwargs):
         suggestion_id = self.kwargs['pk']
-        suggested_schedule = self.get_object(SuggestedSchedule, id=suggestion_id)
+        suggested_schedule = get_object_or_404(SuggestedSchedule, id=suggestion_id)
         schedule = suggested_schedule.schedule
         if schedule.user != self.request.user:
             return Response({"detail": "You do not have permission to edit suggestions for this schedule."}, status=status.HTTP_403_FORBIDDEN)
@@ -415,7 +415,7 @@ class SuggestedSchedulesListAPIView(APIView):
         for invitation in invitations:
             user_meeting_options = self.find_matching_times(schedule.non_busy_times, invitation.non_busy_times)
             all_user_meetings.append({
-                'invited_user': invitation.invited_user.id,
+                'invited_user': invitation.invited_user.username,
                 'meeting_options': user_meeting_options,
             })   
 
@@ -437,33 +437,32 @@ class SuggestedSchedulesListAPIView(APIView):
         return matched_times    
     
     def distribute_meetings_across_calendars(self, all_user_meetings):
-        # Initialize empty calendars and a set for scheduled times to prevent overlap
+        # Initialize empty calendars
         calendars = []
         max_length = max(len(user_meeting['meeting_options']) for user_meeting in all_user_meetings)
 
-
-        # Convert a calendar's meetings to a hashable form for distinctness checks
+        # Function to convert a calendar's meetings to a hashable form for distinctness checks
         def to_hashable(cal):
             return tuple(tuple(sorted(meeting.items())) for meeting in cal)
 
-        # Check if adding a new meeting results in an identical calendar to any existing ones
+        # Function to check if adding a new meeting results in an identical calendar
         def is_unique_calendar(meeting, calendar, user_meetings):
             test_calendar = calendar + [{
                                 'day': meeting['day'],
                                 'time': meeting['time'],
-                                'user': user_meetings['invited_user']
+                                'user': user_meetings['invited_user'],
+                                'available_times': user_meetings['meeting_options']  # Include all available times
                             }]
             test_calendar_hashable = to_hashable(test_calendar)
-            for  cal in calendars:
+            for cal in calendars:
                 if to_hashable(cal) == test_calendar_hashable:                  
                     return False
             return True
 
-        # Distribute meetings across calendars, ensuring uniqueness and no time overlap
-      
+        # The existing logic to distribute meetings across calendars, slightly adjusted
         n_of_calendars = 0
-        i=0
-        while n_of_calendars < 3 and i < max_length:
+        i = 0
+        while n_of_calendars <= 3 and i < max_length:
             calendar = []
             scheduled_times = set()
             all_assigned = True
@@ -471,30 +470,29 @@ class SuggestedSchedulesListAPIView(APIView):
                 assigned = False
                 sorted_times = sorted(user_meetings['meeting_options'], key=lambda x: (-x['priority'], x['day'], x['time']))
                 for index in range(len(sorted_times)):
-                    curr = (i + index) % len(sorted_times) 
-                    meeting = sorted_times[curr]               
+                    curr = (i + index) % len(sorted_times)
+                    meeting = sorted_times[curr]
                     if (meeting['day'], meeting['time']) not in scheduled_times:
                         if is_unique_calendar(meeting, calendar, user_meetings):
                             calendar.append({
                                 'day': meeting['day'],
                                 'time': meeting['time'],
-                                'user': user_meetings['invited_user']
+                                'user': user_meetings['invited_user'],
+                                'available_times': user_meetings['meeting_options']  # Augment calendar entry
                             })
                             scheduled_times.add((meeting['day'], meeting['time']))
                             assigned = True
                             break
-                if assigned == False:
+                if not assigned:
                     all_assigned = False
                     break
-            if not all_assigned:
-                i+= 1
-                break
-            else:                
+            if all_assigned:
                 n_of_calendars += 1
                 calendars.append(calendar)
-                i += 1
+            i += 1
 
         return calendars
+
     
     
     
@@ -522,7 +520,7 @@ class FinalizeScheduleAPIView(APIView):
                     day= meeting["day"],
                     time=datetime.strptime(meeting["time"], "%H:%M").time(),
                     owner=schedule.user,
-                    invited_user=User.objects.get(id=meeting['user']) 
+                    invited_user=User.objects.get(username=meeting['user']) 
                 )
                 finalized_meetings.append(finalized_meeting)
             
@@ -531,7 +529,8 @@ class FinalizeScheduleAPIView(APIView):
             schedule.save()
 
         # Serialize the finalized meetings
-        serializer = FinalizedMeetingSerializer(finalized_meetings, many=True)
+        serializer = FinalizedMeetingSerializer(finalized_meetings, many=True, context={'request': request})
+
 
         for meeting in finalized_meetings:
             subject = "Meeting Schedule Notification"

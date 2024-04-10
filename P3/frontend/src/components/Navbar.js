@@ -1,10 +1,23 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate} from 'react-router-dom';
 import logo from '../images/logo.svg'; 
 
 function Navbar() {
+  const navigate = useNavigate();
+  const hiddenPaths = ['/login', '/register'];
+  const shouldHideNavbar = hiddenPaths.includes(window.location.pathname);
+  if (shouldHideNavbar) {
+    return null;
+  }
+
   const getNavLinkClass = ({ isActive }) => {
     return isActive ? "mr-2 hover:text-gray-400 text-white bg-gray-700 rounded px-3 py-1" : "mr-2 hover:text-gray-400";
+  };
+
+  const handleSignOut = (event) => {
+    event.preventDefault();
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   return (
@@ -18,7 +31,8 @@ function Navbar() {
           <NavLink to="/" className={getNavLinkClass}>Home</NavLink>
           <NavLink to="/schedules" className={getNavLinkClass}>Schedules</NavLink>
           <NavLink to="/contacts" className={getNavLinkClass}>Contacts</NavLink>
-          <NavLink to="/login" className={getNavLinkClass}>Sign Out</NavLink>
+          <NavLink to="/profile" className={getNavLinkClass}>Profile</NavLink>
+          <a href="/login" onClick={handleSignOut} className="cursor-pointer mr-2 hover:text-gray-400">Sign Out</a>
         </div>
       </div>
     </nav>

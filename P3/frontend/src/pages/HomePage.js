@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import FinalTimeTable from'../components/FinalTimeTable'; // Assuming the path to the FinalTimeTable component file
+import fetchWithToken from '../refresh';
 
 function HomePage() {
     const [meetings, setMeetings] = useState(null);
@@ -12,9 +13,8 @@ function HomePage() {
     useEffect(() => {
         const fetchScheduleData = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:8000/api/schedules/finalized/`, {
+                const response = await fetchWithToken(`/api/schedules/finalized/`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
                 if (!response.ok) {

@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import TimeTable from '../components/TimeTable';
+import fetchWithToken from '../refresh';
 
 function InvitationEditPage() {
     const { id } = useParams();
     const [invitation, setInvitation] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isEditing, setIsEditing] = useState(false); 
 
     useEffect(() => {
         const fetchScheduleData = async () => {
             try {
-                const response = await fetch(`http://127.0.0.1:8000/api/schedules/invitations/${id}/`, {
+                const response = await fetchWithToken(`/api/schedules/invitations/${id}/`, {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }

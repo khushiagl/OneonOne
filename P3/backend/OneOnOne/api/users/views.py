@@ -30,27 +30,20 @@ class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 class UserProfileView(APIView):
-  permission_classes = [IsAuthenticated]
-  def get(self, request, format=None):
-    serializer = UserSerializer(request.user)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class UserProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def put(self, request, format=None):
-        user = request.user
-        serializer = UserProfileUpdateSerializer(user, data=request.data, partial=True)  # Allow partial updates
+    def get(self, request, *args, **kwargs):
+        serializer = UserProfileUpdateSerializer(request.user)
+        return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        serializer = UserProfileUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({"message": "User profile updated successfully."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class DeleteProfileView(APIView):
-    permission_classes = [IsAuthenticated]
-
     def delete(self, request, *args, **kwargs):
-        user = request.user
-        user.delete()
+        request.user.delete()
         return Response({"message": "User profile deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+

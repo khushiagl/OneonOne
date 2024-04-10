@@ -19,10 +19,31 @@ class AddContactView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        # Set the 'user' field to the current user
-        request.data['user'] = request.user.pk
-        serializer = ContactSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
+        # Extract the username of the contact from the request data
+        contact_username = request.data.get('contact')
+        
+        if not contact_username:
+            return Response({"error": "Contact username is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Fetch the user instance for the given username
+        try:
+            contact_user = User.objects.get(username=contact_username)
+        except User.DoesNotExist:
+            return Response({"error": "User with this username does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if the authenticated user is trying to add themselves
+        if request.user == contact_user:
+            return Response({"error": "You cannot add yourself as a contact."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Check for existing contact
+        if Contacts.objects.filter(user=request.user, contact=contact_user).exists():
+            return Response({"error": "This contact already exists."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create the contact
+        contact = Contacts(user=request.user, contact=contact_user)
+        contact.save()
+
+        # Serialize the contact instance to return as response
+        # Adjust this based on how you wish to serialize your response
+        serializer = ContactSerializer(contact)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

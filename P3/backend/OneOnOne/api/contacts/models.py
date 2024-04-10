@@ -7,3 +7,8 @@ class Contacts(models.Model):
     
     class Meta:
         unique_together = (('user', 'contact'),)
+
+    def __str__(self):
+        return f'{self.user.username}\'s contact: {self.contact.username}'
+
+    

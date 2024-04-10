@@ -13,6 +13,7 @@ class DeleteContact(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
+        print(request.data)
         username = request.data.get('username')
         user = request.user
 

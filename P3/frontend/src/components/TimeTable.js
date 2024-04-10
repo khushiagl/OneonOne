@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import fetchWithToken from '../refresh';
 
 const TimeTable = ({ schedule, isInvite }) => {
     const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -28,20 +29,18 @@ const TimeTable = ({ schedule, isInvite }) => {
     const updateScheduleInDb = async (newNonBusyTimes) => {
         try {
           if (isInvite) {
-            await fetch(`http://127.0.0.1:8000/api/schedules/invitations/${schedule.id}/responses/`, {
+            await fetchWithToken(`/api/schedules/invitations/${schedule.id}/responses/`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}` 
             },
             body: JSON.stringify({ non_busy_times: newNonBusyTimes }),
           });
         } else {
-          await fetch(`http://127.0.0.1:8000/api/schedules/${schedule.id}/preferences/`, {
+          await fetchWithToken(`/api/schedules/${schedule.id}/preferences/`, {
             method: 'PUT',
             headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.getItem('token')}` 
+              'Content-Type': 'application/json'
             },
             body: JSON.stringify({ non_busy_times: newNonBusyTimes }),
           });

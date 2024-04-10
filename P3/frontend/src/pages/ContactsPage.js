@@ -1,101 +1,146 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import ContactCard from '../components/Contacts/ContactCard';
 import ContactModal from '../components/Contacts/ContactModal';
+import fetchWithToken from '../refresh';
+
+
 
 function ContactsPage() {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [editingContact, setEditingContact] = useState(null); // State to track the editing contact
-    const [isModalOpen, setIsModalOpen] = useState(false); // State to track if the modal is open
-    const onEdit = (contact) => {
-        setEditingContact(contact);
-        setIsModalOpen(true);
-    };
+  const [newContactUsername, setNewContactUsername] = useState(''); // State for the new contact's username
 
-  const login = async (username, password) => {
+
+
+
+  const fetchContacts = useCallback(async () => {
+    setLoading(true); // Ensure loading is set before the fetchWithToken operation
     try {
-      const response = await fetch('http://localhost:8000/api/users/login/', { // Adjust the URL to your backend's login endpoint
+      const contactsResponse = await fetchWithToken('/api/contacts/all_contacts/', {
+        headers: {
+        }
+      });
+      if (!contactsResponse.ok) throw new Error('Failed to fetchWithToken contacts');
+      const contactsData = await contactsResponse.json();
+      setContacts(contactsData);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // useEffect(() => {
+  //   const performLogin = async () => {
+  //     fetchContacts(); // Ensure fetchContacts is called after a successful login
+  //   };
+  //   performLogin();
+  // }, [fetchContacts]); // Includes fetchContacts in the dependency array since it's being called here
+  
+  useEffect(() => {
+    fetchContacts();
+  }, [fetchContacts]); // Dependencies array includes `fetchContacts`
+  
+  // Pass `fetchContacts` to child components
+  const allContacts = contacts.map((contact, index) => {
+    return <ContactCard key={index} contact={contact} resetContacts={fetchContacts} />;
+  });
+
+  const addContact = async (username) => {
+    try {
+      console.log(username);
+      const response = await fetchWithToken('/api/contacts/add_contact/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ contact: username }), // Adjust according to your backend's expected format
       });
+
       if (!response.ok) {
-        throw new Error('Login failed');
-      }
-      const data = await response.json(); // Assuming the backend responds with a JSON object containing the token
-      console.log('Login successful:', data);
-      // Here you would typically save the token to local storage and redirect the user
-      localStorage.setItem('token', data.access); // Adjust depending on how your token is returned
-      // Redirect user or perform other actions upon successful login
-    } catch (error) {
-      console.error('Login error:', error.message);
-      // Handle errors, e.g., show an error message to the user
-    }
-  };
+        const errorData = await response.json(); // Assuming the server sends back JSON with an 'error' key
 
-  useEffect(() => {
-    login("a", "Hello@123");
-    const fetchContacts = async () => {
-      try {
-        const contactsResponse = await fetch(' http://127.0.0.1:8000/api/all_contacts/', {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Include the token in the Authorization header
+        // Handle specific errors based on the response from the server
+        if (response.status === 400) {
+          if (errorData.error === "Contact username is required.") {
+            alert("Please enter a username to add.");
+          } else if (errorData.error === "You cannot add yourself as a contact.") {
+            alert("You cannot add yourself as a contact.");
+          } else if (errorData.error === "This contact already exists.") {
+            alert("This contact already exists in your contacts.");
+          } else {
+            alert("An error occurred: " + errorData.error);
           }
-        });
-        if (!contactsResponse.ok) throw new Error('Failed to fetch contacts');
-        const contactsData = await contactsResponse.json();
-
-        setContacts(contactsData);
+        } else if (response.status === 404) {
+          // Assuming you have a div with the ID 'errorContainer' to display the error and button
+          const errorContainer = document.getElementById('errorContainer');
+          errorContainer.innerHTML = `<p>The user with this username does not exist.</p>
+                                      <button id="inviteButton">Invite to Register</button>`;
+          
+          const inviteButton = document.getElementById('inviteButton');
+          inviteButton.style.padding = "10px 40px";
+          inviteButton.style.fontSize = "16px";
+          inviteButton.style.backgroundColor = "#4CAF50";
+          inviteButton.style.color = "white";
+          inviteButton.style.border = "none";
+          inviteButton.style.borderRadius = "5px";
+          inviteButton.style.cursor = "pointer";
+          inviteButton.style.marginTop = "10px";
+          inviteButton.style.textAlign = "center";
+          inviteButton.onclick = function() {
+              const subject = encodeURIComponent('Invitation to Join Our App');
+              const body = encodeURIComponent('Hello, \n\nI wanted to invite you to join our amazing app. You can sign up and find more information at: https://localhost:3000');
+              window.location.href = `mailto:?subject=${subject}&body=${body}`;
+          };
+        } else {
+          throw new Error('Failed to add contact');
+        }
+        return; // Stop the function here if there was an error
       }
-      catch (err) {
-        setError(err.message);
-      }
-      finally {
-        setLoading(false);
-      }
-    };
-    fetchContacts();
-  }, []);
-
-  const allContacts = contacts.map((contact) => {
-    return <ContactCard key={contact.id} contact={contact} setIsModalOpen={setIsModalOpen} setEditingContact={setEditingContact}  />;
-  });
-
-  const editContact = async (contact) => {
-    try {
-      const response = await fetch(`http://localhost:8000/api/edit_contacts/${contact.id}/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(contact)
-      });
-      if (!response.ok) throw new Error('Failed to edit contact');
-      console.log('Contact edited');
+      await fetchContacts(); // Refresh the contacts list after adding a new contact
     } catch (err) {
-      console.error(err.message);
+      console.error('Add contact error:', err.message);
+      setError(err.message); // Optionally update the error state to display an error message
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    addContact(newContactUsername);
+    setNewContactUsername(''); // Reset the input field
+  };
+ 
 
   return (
-    <div>
-      <h2>Contacts Page</h2>
-      {loading && <p>Loading contacts...</p>}
-      {error && <p>Error fetching contacts: {error}</p>}
-      <div className='all_contacts'>
-        {allContacts}
-      </div>
-      {isModalOpen && <ContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} contact={editingContact} onSave={editContact()} />}
-    </div>
-  );
+    <main className="mx-auto max-w-4xl">
+  <h1 className="text-4xl text-center font-bold mt-32 mb-5">Contacts</h1>
+  <div className="mb-10">
+    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4">
+      <input
+        type="text"
+        value={newContactUsername}
+        onChange={(e) => setNewContactUsername(e.target.value)}
+        className="form-input px-4 py-2 w-full max-w-md border-2 border-gray-200 rounded shadow"
+        placeholder="Enter username"
+      />
+      <button type="submit" className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-8 rounded transition duration-150">
+        Add Contact
+      </button>
+    </form>
+
+    <div id="errorContainer"></div>
+  </div>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {allContacts}
+  </div>
+</main>
+
+    );
 }
 
 export default ContactsPage;
+
 
 

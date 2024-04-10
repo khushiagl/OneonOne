@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {useNavigate } from 'react-router-dom';
+import fetchWithToken from '../refresh';
 
 function SchedulesPage() {
   const [schedules, setSchedules] = useState([]);
@@ -18,54 +19,26 @@ function SchedulesPage() {
   const [showNewScheduleInput, setShowNewScheduleInput] = useState(false);
 
   const navigate = useNavigate();
-
-
-  const login = async (username, password) => {
-    try {
-      const response = await fetch('http://localhost:8000/api/users/login/', { // Adjust the URL to your backend's login endpoint
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-      });
-  
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
-  
-      const data = await response.json(); // Assuming the backend responds with a JSON object containing the token
-      console.log('Login successful:', data);
-  
-      // Here you would typically save the token to local storage and redirect the user
-      localStorage.setItem('token', data.access); // Adjust depending on how your token is returned
-      // Redirect user or perform other actions upon successful login
-    } catch (error) {
-      console.error('Login error:', error.message);
-      // Handle errors, e.g., show an error message to the user
-    }
-  };
   
   useEffect(() => {
-    login("a", "Hello@123");
     const fetchSchedules = async () => {
       try {
         // Fetching schedules
-        const schedulesResponse = await fetch(' http://127.0.0.1:8000/api/schedules/', {
+        const schedulesResponse = await fetchWithToken('/api/schedules/', {
   headers: {
-    'Authorization': `Bearer ${localStorage.getItem('token')}` // Include the token in the Authorization header
+    
   }
 });
-        if (!schedulesResponse.ok) throw new Error('Failed to fetch schedules');
+        if (!schedulesResponse.ok) throw new Error('Failed to fetchWithToken schedules');
         const schedulesData = await schedulesResponse.json();
 
         // Fetching invitations
-        const invitationsResponse = await fetch(' http://127.0.0.1:8000/api/schedules/invitations/', {
+        const invitationsResponse = await fetchWithToken('/api/schedules/invitations/', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}` // Include the token in the Authorization header
+            
           }
         });
-        if (!invitationsResponse.ok) throw new Error('Failed to fetch invitations');
+        if (!invitationsResponse.ok) throw new Error('Failed to fetchWithToken invitations');
         const invitationsData = await invitationsResponse.json();
 
         setSchedules(schedulesData);
@@ -134,7 +107,7 @@ function SchedulesPage() {
   const handleAddSchedule = async (e) => {
     if (e.key === 'Enter' && newScheduleName.trim()) {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/schedules/', {
+        const response = await fetchWithToken('/api/schedules/', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,

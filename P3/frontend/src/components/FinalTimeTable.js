@@ -18,9 +18,16 @@ const FinalTimeTable = ({ meetings, schedules }) => {
     const timeSlots = generateTimeSlots();
 
     useEffect(() => {
-      // Initially select all schedules
-      const allScheduleIds = schedules.map(schedule => schedule.id);
+      if (schedules.length == 0 && meetings[0]){
+        const newSelectedSchedules = new Set(selectedSchedules);
+          newSelectedSchedules.add(meetings[0].schedule.id);
+        setSelectedSchedules(newSelectedSchedules);
+        
+      }
+      else {
+        const allScheduleIds = schedules.map(schedule => schedule.id);
       setSelectedSchedules(new Set(allScheduleIds));
+      }
   }, [schedules]);
 
     useEffect(() => {
@@ -47,7 +54,6 @@ const FinalTimeTable = ({ meetings, schedules }) => {
 
         setSlots(initSlots);
         
-        console.log(selectedSchedules)
     }, [meetings, selectedSchedules]);
 
     const handleCheckboxChange = (e, scheduleId) => {
