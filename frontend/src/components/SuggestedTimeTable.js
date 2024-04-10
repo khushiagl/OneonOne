@@ -125,25 +125,25 @@ const SuggestedTimeTable = ({ meetings, id }) => {
   };
 
   return (
-    <div className='flex flex-col md:flex-row justify-center gap-8 md:gap-4 items-start px-10'>
-      <div className="bg-white shadow-lg overflow-hidden rounded-lg">
-        <table className="min-w-full max-w-lg mx-auto border-collapse block md:table text-xs">
+    <div className='flex flex-col md:flex-row justify-center items-start px-10'>
+      <div className="bg-white shadow-lg overflow-hidden rounded-lg w-full md:w-auto"> {/* Adjusted to ensure full width on smaller screens and auto width on medium screens */}
+        <table className="min-w-full md:min-w-xl mx-auto border-collapse block md:table text-xs"> {/* Adjusted minimum width for medium screens */}
           <thead className="block md:table-header-group">
             <tr className="border md:table-row absolute -top-full md:relative md:top-auto">
-              <th className="border-r p-1 block md:table-cell w-1/6 text-xs">Time</th>
+              <th className="border-r p-1 block md:table-cell w-[16%] md:w-[15%]">Time</th> {/* Adjusted width for 'Time' column */}
               {daysOfWeek.map(day => (
-                <th key={day} className="border-r p-1 block md:table-cell w-1/6 text-xs">{day}</th>
+                <th key={day} className="border-r p-1 block md:table-cell w-[16%] md:w-[17%]">{day}</th> 
               ))}
             </tr>
           </thead>
           <tbody className="block md:table-row-group">
             {slots.map((daySlots, slotIndex) => (
               <tr key={slotIndex} className="bg-white md:table-row">
-                <td className="p-1 border md:table-cell text-xs">{timeSlots[slotIndex]}</td>
+                <td className="p-1 border md:table-cell text-xs w-[16%] md:w-[15%]">{timeSlots[slotIndex]}</td> {/* Adjust width accordingly */}
                 {daySlots.map((daySlot, dayIndex) => (
                   <td
                     key={dayIndex}
-                    className="p-1 border md:table-cell cursor-pointer text-xs"
+                    className="p-1 border md:table-cell cursor-pointer text-xs w-[16%] md:w-[17%]" 
                     draggable={daySlot.label !== ''}
                     onDragStart={(event) => handleDragStart(event, daySlot.meeting)}
                     onDragOver={handleDragOver}
@@ -163,5 +163,6 @@ const SuggestedTimeTable = ({ meetings, id }) => {
       </div>
     </div>
   );
+  
 };
 export default SuggestedTimeTable;
