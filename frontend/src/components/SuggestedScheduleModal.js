@@ -80,7 +80,7 @@ const SuggestedScheduleModal = ({ onClose, id }) => {
 
   return (
     <div className="pt-16 md:pt-20 fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto w-full" id="my-modal" onClick={onClose}>
-  <div className="relative top-20 mx-auto p-5 border shadow-lg rounded-md bg-white max-w-md max-h-md mx-auto" onClick={e => e.stopPropagation()}>
+  <div className="relative top-20 mx-auto p-5 border shadow-lg rounded-md bg-white  max-h-md mx-auto" onClick={e => e.stopPropagation()}>
     <div className="mt-3 text-center">
       <h3 className="text-lg leading-6 font-medium text-gray-900">Suggested Schedules</h3>
       {/* Navigation Buttons */}
@@ -99,12 +99,11 @@ const SuggestedScheduleModal = ({ onClose, id }) => {
   </button>
 </div>
 
-      <div>
+      
         {/* Schedule Table */}
         <div className='flex-grow'>
         {schedules[selectedScheduleIndex] && <SuggestedTimeTable meetings={schedules[selectedScheduleIndex].suggested_times} id={schedules[selectedScheduleIndex].id}></SuggestedTimeTable>}
         </div>
-      </div>
       <div className="flex justify-between items-center px-4 py-3 space-x-4">
   <button
     onClick={finalizeSchedule}
