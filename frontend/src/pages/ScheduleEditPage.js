@@ -170,7 +170,7 @@ function ScheduleEditPage() {
     const sendEmail = (participant) => {
         const email = participant.invited_user.email; // Assuming invited_user is an object with an email property
         const subject = encodeURIComponent("Reminder to Submit Availability");
-        const body = encodeURIComponent(`Please submit your availability using the link below:\nhttp://localhost:3000/invitations/${participant.id}\n\n Copy and paste the link above to view the invitation page.\n\nThank you for your cooperation!`);
+        const body = encodeURIComponent(`Please submit your availability using the link below:\nhttps://master.d33yqvyddcsopz.amplifyapp.com/invitations/${participant.id}\n\n Copy and paste the link above to view the invitation page.\n\nThank you for your cooperation!`);
 
         const mailtoLink = `mailto:${email}?subject=${subject}&body=${body}`;
     

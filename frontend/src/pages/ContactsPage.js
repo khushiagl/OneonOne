@@ -91,7 +91,7 @@ function ContactsPage() {
           inviteButton.style.textAlign = "center";
           inviteButton.onclick = function() {
               const subject = encodeURIComponent('Invitation to Join Our App');
-              const body = encodeURIComponent('Hello, \n\nI wanted to invite you to join our amazing app. You can sign up and find more information at: https://localhost:3000');
+              const body = encodeURIComponent('Hello, \n\nI wanted to invite you to join our amazing app. You can sign up and find more information at: https://master.d33yqvyddcsopz.amplifyapp.com/');
               window.location.href = `mailto:?subject=${subject}&body=${body}`;
           };
         } else {
