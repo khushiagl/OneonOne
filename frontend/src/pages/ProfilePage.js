@@ -7,8 +7,8 @@ const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 function UserProfilePage() {
   const [profile, setProfile] = useState({
-    firstName: '',
-    lastName: '',
+    first_name: '',
+    last_name: '',
     username: '',
     email: '',
     password: '',
@@ -52,8 +52,8 @@ function UserProfilePage() {
     <div className="container mx-auto mt-10">
       <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <h1 className="text-xl mb-4 font-bold">My Profile</h1>
-        <p>First Name: {profile.firstName}</p>
-        <p>Last Name: {profile.lastName}</p>
+        <p>First Name: {profile.first_name}</p>
+        <p>Last Name: {profile.last_name}</p>
         <p>Username: {profile.username}</p>
         <p>Email: {profile.email}</p>
       </div>
