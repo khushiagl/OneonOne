@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import fetchWithToken from '../refresh';
+
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
 
 function UserProfilePage() {
   const [profile, setProfile] = useState({
@@ -19,7 +23,7 @@ function UserProfilePage() {
       // Replace with the actual token retrieval method and API endpoint
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/users/profile/', {
+        const response = await fetchWithToken(backendUrl + '/api/users/profile/', {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,

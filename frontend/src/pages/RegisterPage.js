@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
 function RegisterPage() {
   const [userData, setUserData] = useState({
@@ -53,7 +54,7 @@ function RegisterPage() {
     event.preventDefault();
     if (validateForm()) {
       try {
-        const response = await fetch('http://localhost:8000/api/users/register/', {
+        const response = await fetch(backendUrl + '/api/users/register/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
